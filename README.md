@@ -6,6 +6,15 @@ runtime from go. It provides bindings
 for all of the functions, and a reasonable facade
 for the ones that are most commonly used.
 
+# Related Projects
+
+* [estradege/citect](https://github.com/estradege/citect/wiki/Citect.CtApi-Examples)
+  is another project that builds a dotnet wrapper around CtApi.
+* [pyctapy](https://github.com/gaynertechnical/pyctapi) does similar for Python
+
+I make no claims about either of those projects, but both give you some
+idea what you can do with this interface.
+
 # License
 
 I am releasing this under an Apache 2.0 license, but if you need it to
