@@ -9,7 +9,7 @@ for the ones that are most commonly used.
 # Related Projects
 
 * [estradege/citect](https://github.com/estradege/citect/wiki/Citect.CtApi-Examples)
-  is another project that builds a dotnet wrapper around CtApi.
+  is a project that builds a dotnet wrapper around CtApi.
 * [pyctapy](https://github.com/gaynertechnical/pyctapi) does similar for Python
 
 I make no claims about either of those projects, but both give you some
@@ -19,37 +19,41 @@ idea what you can do with this interface.
 
 I am releasing this under an Apache 2.0 license, but if you need it to
 be something else please contact me. Consider this "postcard-ware" in
-that I'd appreciate a note if you find this useful.
+that I'd appreciate a note if you find any of this useful.  If you
+
 
 # Why did I build this
 
 SCADA software tends to be frustrating if you're a software engineer.
 I think the reason for this is that these suites were designed with
-those who have a strong controls background but not necessarily depth
-of knowledge in software development.  The result is often something
-that's easy for the target audience to use, but limiting for those
-who want to extend functionality beyond what the vendor had in mind.
+controls engineers in mind, not software engineers.
+The result is often somewhat limiting,
+easy for those kinds of engineers but difficult to things that
+are out of the normal usage patterns.  In a nutshell, that's me.
 
-This library exists because the default language for customizing
-things in Plant SCADA is a basic-like language named CiCode, and it
-is pretty limited. It can do a lot but can't handle things like
+I wrote this library because I simply couldn't do what I wanted
+in CiCode.  CiCode can do all the normal things, but it can't handle
 REST calls, JSON/XML serialization, and having a sane way to open sockets
-to other services. You can send e-mail from CiCode but only through
-MAPI (pretty obsolete). In an attempt to bring Plant SCADA into the
-current decade, and provide greater integration opportunities, I wrote
-this library. My main intention here is:
+to other services. On the notification front, you can send an e-mail
+but it's only through MAPI (which is pretty obsolete). It can talk to
+SMTP servers but not really handle DNS or certificate-based e-mail
+security.  In the current age, you don't want to send notifications
+by blindly launching e-mail or text messages anyway.
 
-* Integrating with some external IIoT frameworks like Amazon SiteWise
-* Linking to a more robust paging solution that supports duty schedules,
-  resolution tracking, and Android/IOS Push API. Some people like
-  [PagerDuty](https://www.pagerduty.com).  [Squadcast](https://www.squadcast.com/)
-  is also a good option that has easy integrations and a lot of features.
-  Grafana [OnCall](https://grafana.com/products/cloud/oncall) is newer but
-  it looks like they have the right idea.
-* Storing data in a more reasonable time-series database like
+I am using this library for a few things:
+
+* Integrating with external IIoT frameworks like Amazon SiteWise
+  and IoT Core
+* Storing data in a modern, time-series database like
   TimescaleDB or Influx, so that I can have much more flexibility
-  visualizing data
-
+  visualizing data and take advantage of time-series database
+  functions for gap filling, aggregation, and per-signal interpolation
+  (and not spend a million dollars on OSISoft PI)
+* Linking to a more robust notification solution that supports duty schedules,
+  resolution tracking, and a mobile push API. Some people like
+  [PagerDuty](https://www.pagerduty.com).  but I use [Squadcast](https://www.squadcast.com/)
+  which is also good.  Grafana [OnCall](https://grafana.com/products/cloud/oncall) is new (as of the time I
+  wrote this) but it looks like they have the right idea.
 
 Of course, all of this could have been done in Visual Studio (but why?)
 
