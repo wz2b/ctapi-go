@@ -24,7 +24,6 @@ func Init(dllName string, dllPath string) (*CtApi, error) {
 	}
 
 	r1, _, err := addDllDir.Call(uintptr(unsafe.Pointer(dllPathC)))
-	fmt.Printf("result of add dll directory: %d\n", r1)
 	if r1 == 0 {
 		fmt.Println(os.Stderr, "Unable to add DLL path")
 		return nil, err

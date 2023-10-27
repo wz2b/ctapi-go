@@ -5,7 +5,7 @@ import (
 	"unsafe"
 )
 
-func (this *CtApi) GetStringProperty(hObj windows.Handle, name string) (string, error) {
+func (this *CtApi) GetPropertyAsString(hTag windows.Handle, name string) (string, error) {
 	const buflen = 255
 	//namePtr := unsafe.Pointer(StringToWideCharPtr(name))
 	namePtr := unsafe.Pointer(StringToLPCTSTR(name))
@@ -17,7 +17,7 @@ func (this *CtApi) GetStringProperty(hObj windows.Handle, name string) (string, 
 	lenPtr := unsafe.Pointer(&resultLen)
 
 	r1, _, err := this.procs.ctGetProperty.Call(
-		uintptr(hObj),    // hnd (HANDLE)
+		uintptr(hTag),    // hnd (HANDLE)
 		uintptr(namePtr), // szName (LPCTSTR)
 		uintptr(bufPtr),  // pData (void *)
 		buflen,           // eBufferLength (DWORD)

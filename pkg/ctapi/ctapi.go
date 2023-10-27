@@ -1,8 +1,6 @@
 package ctapi
 
-import (
-	"golang.org/x/sys/windows"
-)
+import "golang.org/x/sys/windows"
 
 const CT_OPEN_RECONNECT = 0x02
 const CT_OPEN_READ_ONLY = 0x04
@@ -45,6 +43,21 @@ const DBTYPE_DBDATE = 133
 const DBTYPE_DBTIME = 134
 const DBTYPE_DBTIMESTAMP = 135
 
+const CT_LIST_EVENT = 0x00000001
+const CT_LIST_LIGHTWEIGHT_MODE = 0x00000002
+
+const CT_LIST_VALUE = 0x00000001
+const CT_LIST_TIMESTAMP = 0x00000002
+const CT_LIST_VALUE_TIMESTAMP = 0x00000003
+const CT_LIST_QUALITY_TIMESTAMP = 0x00000004
+const CT_LIST_QUALITY_GENERAL = 0x00000005
+const CT_LIST_QUALITY_SUBSTATUS = 0x00000006
+const CT_LIST_QUALITY_LIMIT = 0x00000007
+const CT_LIST_QUALITY_EXTENDED_SUBSTATUS = 0x00000008
+const CT_LIST_QUALITY_DATASOURCE_ERROR = 0x00000009
+const CT_LIST_QUALITY_OVERRIDE = 0x0000000A
+const CT_LIST_QUALITY_CONTROL_MODE = 0x0000000B
+
 var nullptr = uintptr(0)
 
 type CtApi struct {
@@ -56,8 +69,8 @@ type ctApiProcs struct {
 	//CtAPIAlarm *windows.Proc
 	//CtAPITrend *windows.Proc
 	//TrnQuery                   *windows.Proc
-	ctCancelIO *windows.Proc
-	//ctCiCode                   *windows.Proc
+	ctCancelIO            *windows.Proc
+	ctCicode              *windows.Proc
 	ctClientCreate        *windows.Proc
 	ctClientDestroy       *windows.Proc
 	ctClose               *windows.Proc
@@ -72,6 +85,12 @@ type ctApiProcs struct {
 	ctFindScroll          *windows.Proc
 	ctGetOverlappedResult *windows.Proc
 	ctGetProperty         *windows.Proc
+
+	//
+	// This is not a function, it is a macro
+	// that checks the status of the CTOVERLAPPED
+	// structure and looks for STATUS_PENDING.
+	//
 	//ctHasOverlappedIoCompleted *windows.Proc
 	ctListNew                *windows.Proc
 	ctListAdd                *windows.Proc

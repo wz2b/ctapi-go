@@ -17,9 +17,7 @@ func build(pkg string, os string, arch string) error {
 
 	err := sh.RunWith(map[string]string{"GOOS": os, "GOARCH": arch}, "go", "build", "-v", "-o", dest, source)
 
-	if err == nil {
-		fmt.Printf("OK\n")
-	} else {
+	if err != nil {
 		fmt.Printf("%s\n", err)
 	}
 	return err
@@ -29,10 +27,14 @@ func Build() error {
 	var err error
 	cmds := []string{
 		"lstags",
+		"subscriber",
+		"alarmlog",
+		"cdb",
 	}
 
 	arches := []string{
 		"windows/amd64",
+		"windows/386",
 	}
 
 	if err = sh.Run("go", "mod", "download"); err != nil {
