@@ -6,6 +6,10 @@ runtime from go. It provides bindings
 for all of the functions, and a reasonable facade
 for the ones that are most commonly used.
 
+I am also providing some bindings for the Alarms Database (odbc)
+connection.  See the examples.
+
+
 # Related Projects
 
 * [estradege/citect](https://github.com/estradege/citect/wiki/Citect.CtApi-Examples)

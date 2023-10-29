@@ -30,6 +30,7 @@ func Build() error {
 		"subscriber",
 		"alarmlog",
 		"cdb",
+		"journal",
 	}
 
 	arches := []string{
