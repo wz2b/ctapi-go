@@ -1,4 +1,4 @@
-module golink
+module ctapi-go
 
 go 1.20
 
