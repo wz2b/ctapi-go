@@ -1,4 +1,4 @@
-module ctapi-go
+module github.com/wz2b/ctapi-go
 
 go 1.20
 
