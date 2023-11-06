@@ -31,6 +31,7 @@ func Build() error {
 		"alarmlog",
 		"cdb",
 		"journal",
+		"journal-to-mqtt",
 	}
 
 	arches := []string{

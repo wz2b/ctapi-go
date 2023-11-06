@@ -1,6 +1,7 @@
 package cdb
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"os"
@@ -39,7 +40,7 @@ const journalQuery = `
 		    ON cs.Id=msa.Id		    	
 		LEFT OUTER JOIN CiTimestampedAlarm tsa
 		    ON cs.Id=tsa.Id	 
-		 WHERE cs.RecordTime > {ts '%s'}
+		 WHERE cs.SeqNo > %d
 	 
 		 ORDER BY cs.RecordTime`
 
@@ -50,27 +51,14 @@ func All(record JournalRecord) bool {
 }
 
 func AlarmsOnly(record JournalRecord) bool {
-	if record.AlarmStateDesc == nil {
-		return false
-	} else {
-		switch strings.ToLower(*record.AlarmStateDesc) {
-		case "cleared":
-			return true
-		case "acknowledged":
-			return true
-		case "raised":
-			return true
-		default:
-			return false
-		}
-	}
+	return record.AlarmStateDesc != nil && len(strings.TrimSpace(*record.AlarmStateDesc)) > 0
 }
 
-func (this *CdbConnection) GetJournalSince(t time.Time, filter JournalFilter) (chan JournalRecord, error) {
+func (this *CdbConnection) GetJournalSince(last uint64, filter JournalFilter) (chan JournalRecord, error) {
 	var compactQuery = fmt.Sprintf(strings.Join(strings.Fields(strings.TrimSpace(journalQuery)), " "),
-		t.UTC().Format("2006-01-02 15:04:05Z"))
+		last)
 
-	fmt.Println(compactQuery)
+	fmt.Fprintf(os.Stderr, "Query: %s\n", compactQuery)
 
 	ch := make(chan JournalRecord)
 
@@ -83,27 +71,46 @@ func (this *CdbConnection) GetJournalSince(t time.Time, filter JournalFilter) (c
 		defer rows.Close()
 
 		for rows.Next() {
-			var record JournalRecord
-			if err := rows.Scan(
-				&record.SeqNo,
-				&record.RecordTime,
-				&record.Source,
-				&record.Message,
-				&record.CustomStringField,
-				&record.AlarmStateDesc,
-				&record.Description,
-				&record.DisplayName); err != nil {
-				log.Fatal(err)
+			record := currentRecordToJournal(rows)
+			if filter(*record) {
+				ch <- *record
 			}
-
-			if filter(record) {
-				ch <- record
-			}
-
 		}
 		close(ch)
 	}()
 
 	return ch, nil
+}
 
+func currentRecordToJournal(rows *sql.Rows) *JournalRecord {
+	var record JournalRecord
+
+	if err := rows.Scan(
+		&record.SeqNo,
+		&record.RecordTime,
+		&record.Source,
+		&record.Message,
+		&record.CustomStringField,
+		&record.AlarmStateDesc,
+		&record.Description,
+		&record.DisplayName); err != nil {
+		log.Fatal(err)
+	}
+
+	//
+	// The time that comes in from the database is in some time zone, and
+	// from experimentation on my system it is in UTC even though the
+	// computer Plant SCADA is running on is set to local time.
+	//
+	record.RecordTime = time.Date(
+		record.RecordTime.Year(),
+		record.RecordTime.Month(),
+		record.RecordTime.Day(),
+		record.RecordTime.Hour(),
+		record.RecordTime.Minute(),
+		record.RecordTime.Second(),
+		record.RecordTime.Nanosecond(),
+		time.UTC)
+
+	return &record
 }

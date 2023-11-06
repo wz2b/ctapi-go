@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"golink/pkg/cdb"
-	"time"
 )
 
 func main() {
@@ -20,7 +19,7 @@ func main() {
 
 	filter := cdb.AlarmsOnly
 
-	entries, err := db.GetJournalSince(time.Now().AddDate(0, -1, 0), filter)
+	entries, err := db.GetJournalSince(0, filter)
 	if err != nil {
 		panic(err)
 	}

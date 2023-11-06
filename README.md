@@ -7,7 +7,16 @@ for all of the functions, and a reasonable facade
 for the ones that are most commonly used.
 
 I am also providing some bindings for the Alarms Database (odbc)
-connection.  See the examples.
+connection.  You might be able to get away with only using
+the API, but there are fields in the database that aren't
+available through the API.  More importantly, the database
+has a table CDBEventJournal that you can use to get a
+time-ordered list of alarm activity - including new rows
+when an alarm is Raised, Cleared, or Acknowledged.  This
+is the most practical way to 'follow' an alarm history
+without having to maintain state and manually diff rows
+in the AlarmSummary as viewed from the API.
+
 
 
 # Related Projects
@@ -21,9 +30,12 @@ idea what you can do with this interface.
 
 # License
 
+YOU ARE OPERATING AT YOUR OWN RISK.  Do not use this for any
+life safety concerns whatsoever.
+
 I am releasing this under an Apache 2.0 license, but if you need it to
 be something else please contact me. Consider this "postcard-ware" in
-that I'd appreciate a note if you find any of this useful.  If you
+that I'd appreciate a note if you find any of this useful.
 
 
 # Why did I build this
