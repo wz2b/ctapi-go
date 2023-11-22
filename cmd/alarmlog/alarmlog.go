@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"golink/pkg/ctapi"
+	"github.com/wz2b/ctapi-go/ctapi"
 )
 
 var dllPath = "C:\\Program Files (x86)\\AVEVA Plant SCADA\\Bin\\Bin (x64)"

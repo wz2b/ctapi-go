@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"golink/pkg/cdb"
+	"github.com/wz2b/ctapi-go/cdb"
 )
 
 func main() {

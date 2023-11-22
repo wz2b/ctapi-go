@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	_ "github.com/alexbrainman/odbc"
-	"golink/pkg/cdb"
+	"github.com/wz2b/ctapi-go/cdb"
 	"time"
 )
 

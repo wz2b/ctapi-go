@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	log "github.com/sirupsen/logrus"
-	"golink/pkg/cdb"
+	"github.com/wz2b/ctapi-go/cdb"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"io"
 	"os"

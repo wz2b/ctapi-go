@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/wz2b/ctapi-go/ctapi"
 	"golang.org/x/sys/windows"
-	"golink/pkg/ctapi"
 	"time"
 )
 
