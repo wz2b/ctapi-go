@@ -2,6 +2,7 @@ package cdb
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -21,7 +22,7 @@ type JournalRecord struct {
 }
 
 const journalQuery = `
-		SELECT cs.SeqNo,
+		SELECT %s cs.SeqNo,
 		       cs.RecordTime,
 		       cs.Source,
 		       cs.Message,
@@ -40,9 +41,9 @@ const journalQuery = `
 		    ON cs.Id=msa.Id		    	
 		LEFT OUTER JOIN CiTimestampedAlarm tsa
 		    ON cs.Id=tsa.Id	 
-		 WHERE cs.SeqNo > %d
+		 WHERE %s
 	 
-		 ORDER BY cs.RecordTime`
+		 ORDER BY %s`
 
 type JournalFilter func(JournalRecord) bool
 
@@ -54,16 +55,23 @@ func AlarmsOnly(record JournalRecord) bool {
 	return record.AlarmStateDesc != nil && len(strings.TrimSpace(*record.AlarmStateDesc)) > 0
 }
 
-func (this *CdbConnection) GetJournalSince(last uint64, filter JournalFilter) (chan JournalRecord, error) {
-	var compactQuery = fmt.Sprintf(strings.Join(strings.Fields(strings.TrimSpace(journalQuery)), " "),
-		last)
+func makeJournalQuery(whereClause string, topClause string, orderClause string) string {
+	return fmt.Sprintf(strings.Join(strings.Fields(strings.TrimSpace(journalQuery)), " "),
+		topClause, whereClause, orderClause)
+}
 
-	fmt.Fprintf(os.Stderr, "Query: %s\n", compactQuery)
+func (this *CdbConnection) GetJournalSince(last uint64, filter JournalFilter) (chan JournalRecord, error) {
+	var qs = makeJournalQuery(
+		fmt.Sprintf("cs.SeqNo > %d", last),
+		"",
+		"cs.RecordTime")
+
+	fmt.Fprintf(os.Stderr, "Query: %s\n", qs)
 
 	ch := make(chan JournalRecord)
 
 	go func() {
-		rows, err := this.db.Query(compactQuery)
+		rows, err := this.db.Query(qs)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Unable to execute query: %s\n", err.Error())
 			panic(err)
@@ -113,4 +121,29 @@ func currentRecordToJournal(rows *sql.Rows) *JournalRecord {
 		time.UTC)
 
 	return &record
+}
+
+func (this *CdbConnection) FindParentEntry(update *JournalRecord) (*JournalRecord, error) {
+	var qs = makeJournalQuery(
+		fmt.Sprintf("cs.Source='%s' AND cs.AlarmStateDesc", update.Source),
+		"TOP 1",
+		"cs.RecordTime DESC")
+
+	rows, err := this.db.Query(qs)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	if rows.Next() == false {
+		// not found
+		return nil, nil
+	}
+
+	parent := currentRecordToJournal(rows)
+
+	if rows.Next() {
+		return parent, errors.New("fetching associated journal entry, more than one row was returned, but only one was expected")
+	}
+	return parent, nil
 }
