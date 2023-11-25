@@ -41,9 +41,8 @@ const journalQuery = `
 		    ON cs.Id=msa.Id		    	
 		LEFT OUTER JOIN CiTimestampedAlarm tsa
 		    ON cs.Id=tsa.Id	 
-		 WHERE %s
-	 
-		 ORDER BY %s`
+		WHERE %s
+	    ORDER BY %s`
 
 type JournalFilter func(JournalRecord) bool
 
@@ -56,8 +55,8 @@ func AlarmsOnly(record JournalRecord) bool {
 }
 
 func makeJournalQuery(whereClause string, topClause string, orderClause string) string {
-	return fmt.Sprintf(strings.Join(strings.Fields(strings.TrimSpace(journalQuery)), " "),
-		topClause, whereClause, orderClause)
+	cq := strings.Join(strings.Fields(strings.TrimSpace(journalQuery)), " ")
+	return fmt.Sprintf(cq, topClause, whereClause, orderClause)
 }
 
 func (this *CdbConnection) GetJournalSince(last uint64, filter JournalFilter) (chan JournalRecord, error) {
@@ -66,7 +65,7 @@ func (this *CdbConnection) GetJournalSince(last uint64, filter JournalFilter) (c
 		"",
 		"cs.RecordTime")
 
-	fmt.Fprintf(os.Stderr, "Query: %s\n", qs)
+	fmt.Fprintf(os.Stderr, "----\nQuery journal: %s\n", qs)
 
 	ch := make(chan JournalRecord)
 
@@ -123,11 +122,16 @@ func currentRecordToJournal(rows *sql.Rows) *JournalRecord {
 	return &record
 }
 
-func (this *CdbConnection) FindParentEntry(update *JournalRecord) (*JournalRecord, error) {
+func (this *CdbConnection) GetLastRaisedForSource(source *JournalRecord) (*JournalRecord, error) {
+	whereClause := fmt.Sprintf("cs.Source='%s' AND cs.SeqNo < %d AND cs.AlarmStateDesc='Raised'",
+		source.Source,
+		source.SeqNo)
 	var qs = makeJournalQuery(
-		fmt.Sprintf("cs.Source='%s' AND cs.AlarmStateDesc", update.Source),
-		"TOP 1",
+		whereClause,
+		"TOP (1)",
 		"cs.RecordTime DESC")
+
+	//fmt.Fprintf(os.Stderr, "----\nQuery for source: %s\n", qs)
 
 	rows, err := this.db.Query(qs)
 	if err != nil {

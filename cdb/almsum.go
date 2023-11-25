@@ -55,8 +55,6 @@ func (this *CdbConnection) GetAlarmSummarySince(t time.Time) chan AlarmSummaryRe
 	var compactQuery = fmt.Sprintf(strings.Join(strings.Fields(strings.TrimSpace(alarmSummaryQuery)), " "),
 		t.UTC().Format("2006-01-02 15:04:05Z"))
 
-	fmt.Println(compactQuery)
-
 	ch := make(chan AlarmSummaryRecord)
 
 	go func() {
